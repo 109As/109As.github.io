@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>颜色记忆挑战 - 功能模块图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .architecture {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .layer {
+            margin-bottom: 25px;
+        }
+
+        .layer-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .modules {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: flex-start;
+            padding-left: 20px;
+        }
+
+        .module {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 15px 20px;
+            min-width: 140px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .module:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .module-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .module-desc {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .flow-arrow {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid #667eea;
+            margin: 0 auto;
+        }
+
+        .layer-box {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .backend-section {
+            padding-left: 20px;
+        }
+
+        .database-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            border: 2px solid #ffeeba;
+            border-radius: 6px;
+            padding: 20px;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .database-name {
+            font-weight: bold;
+            color: #856404;
+            font-size: 1rem;
+        }
+
+        .database-desc {
+            font-size: 0.8rem;
+            color: #856404;
+            margin-top: 8px;
+        }
+
+        .table-structure {
+            margin-top: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.75rem;
+            color: #333;
+            text-align: left;
+        }
+
+        .api-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .api-item {
+            background: #e7f3ff;
+            border: 1px solid #b6d4fe;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #0c63e4;
+        }
+
+        .api-item .method {
+            font-weight: bold;
+            margin-right: 8px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            color: white;
+        }
+
+        .api-item .get {
+            background: #10b981;
+        }
+
+        .api-item .post {
+            background: #f59e0b;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+
+        .legend-color.frontend {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+
+        .legend-color.backend {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .legend-color.database {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .legend-text {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .feature-item {
+            font-size: 0.8rem;
+            color: #555;
+            padding: 3px 0;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .module {
+                min-width: 120px;
+                padding: 12px 15px;
+            }
+            
+            .modules {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>颜色记忆挑战游戏 - 功能模块图</h1>
+            <p class="subtitle">Color Memory Challenge - Functional Module Diagram</p>
+        </header>
+
+        <div class="architecture">
+            <div class="layer">
+                <div class="layer-title">├─ 表现层 (Presentation Layer)</div>
+                <div class="layer-box">
+                    <div class="modules">
+                        <div class="module">
+                            <div class="module-name">游戏界面</div>
+                            <div class="module-desc">9宫格彩色方块</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">状态显示</div>
+                            <div class="module-desc">关卡/得分/最高分</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">难度选择器</div>
+                            <div class="module-desc">简单/普通/困难</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">道具面板</div>
+                            <div class="module-desc">提示/慢放/跳过</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">排行榜</div>
+                            <div class="module-desc">玩家成绩排名</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">成就展示</div>
+                            <div class="module-desc">成就徽章显示</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">输入弹窗</div>
+                            <div class="module-desc">保存玩家名字</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow"></div>
+
+            <div class="layer">
+                <div class="layer-title">├─ 业务逻辑层 (Business Logic Layer)</div>
+                <div class="layer-box">
+                    <div class="modules">
+                        <div class="module">
+                            <div class="module-name">游戏引擎</div>
+                            <div class="module-desc">核心游戏逻辑</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">序列生成器</div>
+                            <div class="module-desc">随机颜色序列</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">音效控制器</div>
+                            <div class="module-desc">Web Audio API</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">难度管理器</div>
+                            <div class="module-desc">速度/分数计算</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">连击计算器</div>
+                            <div class="module-desc">连击奖励逻辑</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">道具处理器</div>
+                            <div class="module-desc">提示/慢放/跳过</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">成就判定器</div>
+                            <div class="module-desc">成就解锁逻辑</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">输入验证</div>
+                            <div class="module-desc">玩家输入校验</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">分数计算</div>
+                            <div class="module-desc">得分计算规则</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow"></div>
+
+            <div class="layer">
+                <div class="layer-title">├─ 数据访问层 (Data Access Layer)</div>
+                <div class="layer-box">
+                    <div class="modules">
+                        <div class="module">
+                            <div class="module-name">API接口</div>
+                            <div class="module-desc">后端数据交互</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-name">本地存储</div>
+                            <div class="module-desc">LocalStorage缓存</div>
+                        </div>
+                    </div>
+                    <div class="api-list">
+                        <div class="api-item">
+                            <span class="method get">GET</span> /api/scores
+                        </div>
+                        <div class="api-item">
+                            <span class="method post">POST</span> /api/scores
+                        </div>
+                        <div class="api-item">
+                            <span class="method get">GET</span> /api/highscore
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow"></div>
+
+            <div class="layer">
+                <div class="layer-title">└─ 数据存储层 (Data Storage Layer)</div>
+                <div class="layer-box" style="text-align: center;">
+                    <div class="database-box">
+                        <div class="database-name">SQLite 数据库</div>
+                        <div class="database-desc">scores 表 / achievements 表</div>
+                        <div class="table-structure">
+                            scores表：<br>
+                            id INTEGER PRIMARY KEY<br>
+                            player_name TEXT<br>
+                            score INTEGER<br>
+                            level INTEGER<br>
+                            difficulty TEXT<br>
+                            created_at TIMESTAMP<br><br>
+                            achievements表：<br>
+                            id INTEGER PRIMARY KEY<br>
+                            player_id TEXT<br>
+                            achievement_id TEXT<br>
+                            unlocked_at TIMESTAMP
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
+                <h4 style="margin-bottom: 10px; color: #333;">📋 创新功能清单</h4>
+                <div class="feature-list" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
+                    <div class="feature-item">🔊 音效系统 - Web Audio API</div>
+                    <div class="feature-item">🎚️ 难度选择 - 简单/普通/困难</div>
+                    <div class="feature-item">🧪 道具系统 - 提示/慢放/跳过</div>
+                    <div class="feature-item">🏅 成就系统 - 8项成就解锁</div>
+                    <div class="feature-item">🔥 连击系统 - 连击奖励加分</div>
+                    <div class="feature-item">📊 分数加成 - 难度/连击加成</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color frontend"></div>
+                <span class="legend-text">表现层模块</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color backend"></div>
+                <span class="legend-text">业务逻辑层模块</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color database"></div>
+                <span class="legend-text">数据库</span>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-primary">返回游戏</a>
+        </div>
+    </div>
+</body>
+</html>

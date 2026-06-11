@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>声音版本对比 - 21音完整版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .versions {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .version-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .version-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .version-card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .version-card .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .badge-original {
+            background: #3498db;
+        }
+
+        .badge-improved {
+            background: #e67e22;
+        }
+
+        .badge-latest {
+            background: #27ae60;
+        }
+
+        .version-card p {
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* 钢琴键盘样式 */
+        .piano-container {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            overflow-x: auto;
+        }
+
+        .piano-keys {
+            display: flex;
+            gap: 2px;
+            position: relative;
+            height: 180px;
+            align-items: flex-end;
+        }
+
+        .key-white {
+            width: 50px;
+            height: 160px;
+            background: linear-gradient(180deg, #fff 0%, #eee 50%, #ddd 100%);
+            border: 1px solid #ccc;
+            border-radius: 0 0 8px 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-size: 0.85em;
+            color: #333;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .key-white:hover {
+            background: linear-gradient(180deg, #f0f0f0 0%, #ddd 50%, #ccc 100%);
+        }
+
+        .key-white:active,
+        .key-white.active {
+            background: linear-gradient(180deg, #ddd 0%, #ccc 50%, #bbb 100%);
+            transform: translateY(2px);
+        }
+
+        .key-black {
+            width: 35px;
+            height: 100px;
+            background: linear-gradient(180deg, #333 0%, #111 50%, #000 100%);
+            border-radius: 0 0 5px 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 8px;
+            font-size: 0.75em;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .key-black:hover {
+            background: linear-gradient(180deg, #444 0%, #222 50%, #111 100%);
+        }
+
+        .key-black:active,
+        .key-black.active {
+            background: linear-gradient(180deg, #222 0%, #111 50%, #000 100%);
+            transform: translateY(2px);
+        }
+
+        .octave-label {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            color: #666;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .btn-play {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .btn-play:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-stop:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            transform: translateY(-2px);
+        }
+
+        .btn-scale {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+
+        .btn-scale:hover {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            transform: translateY(-2px);
+        }
+
+        .tips {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+        .tips h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .tips li::before {
+            content: '🎹';
+            position: absolute;
+            left: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 40px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .info-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-box th,
+        .info-box td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-box th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .info-box tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 声音版本对比测试</h1>
+        <p class="description">21音完整版钢琴键盘 - 点击琴键试听不同版本的音色</p>
+
+        <!-- 登录方案对比 -->
+        <div class="info-box">
+            <h3>🔐 登录方案对比</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>特性</th>
+                        <th>简单版（localStorage）</th>
+                        <th>完整版（后端服务器）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>数据存储</td>
+                        <td>浏览器本地存储</td>
+                        <td>云端数据库</td>
+                    </tr>
+                    <tr>
+                        <td>跨设备同步</td>
+                        <td>❌ 只能在当前浏览器使用</td>
+                        <td>✅ 多设备同步</td>
+                    </tr>
+                    <tr>
+                        <td>数据持久化</td>
+                        <td>清除浏览器数据会丢失</td>
+                        <td>✅ 数据永久保存</td>
+                    </tr>
+                    <tr>
+                        <td>安全性</td>
+                        <td>较低（数据在本地）</td>
+                        <td>较高（后端加密）</td>
+                    </tr>
+                    <tr>
+                        <td>排行榜</td>
+                        <td>只能本地显示</td>
+                        <td>✅ 全球排行榜</td>
+                    </tr>
+                    <tr>
+                        <td>开发复杂度</td>
+                        <td>低，纯前端实现</td>
+                        <td>高，需要后端开发</td>
+                    </tr>
+                    <tr>
+                        <td>部署成本</td>
+                        <td>零成本</td>
+                        <td>需要服务器和域名</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="versions">
+            <!-- 版本1：最初版 -->
+            <div class="version-card">
+                <span class="badge badge-original">最初版</span>
+                <h2>纯净空灵版</h2>
+                <p>最开始设计的纯净游戏琴音，只有基础的正弦波振荡器，音色简单干净。</p>
+                <div class="features">
+                    <span class="feature-tag">时长: 800ms</span>
+                    <span class="feature-tag">2个振荡器</span>
+                    <span class="feature-tag">纯净空灵</span>
+                </div>
+                <div class="piano-container">
+                    <div class="piano-keys" id="piano-original">
+                        <!-- 21个音符的钢琴键盘将由JS生成 -->
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-play" onclick="playVersion('original')">▶ 播放全部</button>
+                    <button class="btn btn-scale" onclick="playScale('original')">🎶 播放音阶</button>
+                    <button class="btn btn-stop" onclick="stopAll()">■ 停止</button>
+                </div>
+            </div>
+
+            <!-- 版本2：延长版 -->
+            <div class="version-card">
+                <span class="badge badge-improved">改进版</span>
+                <h2>延音踏板版</h2>
+                <p>加入了延音踏板效果的混响，声音更长更有延续性，混响效果更丰富。</p>
+                <div class="features">
+                    <span class="feature-tag">时长: 1500ms</span>
+                    <span class="feature-tag">延音踏板</span>
+                    <span class="feature-tag">混响增强</span>
+                </div>
+                <div class="piano-container">
+                    <div class="piano-keys" id="piano-improved">
+                        <!-- 21个音符的钢琴键盘将由JS生成 -->
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-play" onclick="playVersion('improved')">▶ 播放全部</button>
+                    <button class="btn btn-scale" onclick="playScale('improved')">🎶 播放音阶</button>
+                    <button class="btn btn-stop" onclick="stopAll()">■ 停止</button>
+                </div>
+            </div>
+
+            <!-- 版本3：最新版 -->
+            <div class="version-card">
+                <span class="badge badge-latest">最新版</span>
+                <h2>超长延音版</h2>
+                <p>进一步延长声音到2秒，延音效果更加明显，适合需要长音的游戏场景。</p>
+                <div class="features">
+                    <span class="feature-tag">时长: 2000ms</span>
+                    <span class="feature-tag">超长延音</span>
+                    <span class="feature-tag">更强混响</span>
+                </div>
+                <div class="piano-container">
+                    <div class="piano-keys" id="piano-latest">
+                        <!-- 21个音符的钢琴键盘将由JS生成 -->
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-play" onclick="playVersion('latest')">▶ 播放全部</button>
+                    <button class="btn btn-scale" onclick="playScale('latest')">🎶 播放音阶</button>
+                    <button class="btn btn-stop" onclick="stopAll()">■ 停止</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips">
+            <h3>💡 使用提示</h3>
+            <ul>
+                <li>点击单个琴键可以听到单音效果（白键为基本音，黑键为半音）</li>
+                <li>点击"播放全部"按钮可以从低到高播放所有21个音符</li>
+                <li>点击"播放音阶"按钮可以听到C大调音阶</li>
+                <li>尝试同时按下多个琴键，感受和弦的混响效果</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 21个音符频率（从C3到B5，包含所有半音）
+        const noteFrequencies = {
+            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81,
+            'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00,
+            'A#3': 233.08, 'B3': 246.94,
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63,
+            'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00,
+            'A#4': 466.16, 'B4': 493.88,
+            'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25,
+            'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00,
+            'A#5': 932.33, 'B5': 987.77
+        };
+
+        // 白键和黑键的顺序
+        const whiteKeys = ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5'];
+        const blackKeyPositions = {
+            'C#3': 1, 'D#3': 3, 'F#3': 6, 'G#3': 8, 'A#3': 10,
+            'C#4': 12, 'D#4': 14, 'F#4': 17, 'G#4': 19, 'A#4': 21,
+            'C#5': 23, 'D#5': 25, 'F#5': 28, 'G#5': 30, 'A#5': 32
+        };
+
+        let audioContext = null;
+        const activeSounds = {};
+
+        // 初始化钢琴键盘
+        function initPianos() {
+            ['original', 'improved', 'latest'].forEach(version => {
+                const container = document.getElementById(`piano-${version}`);
+                createPiano(container, version);
+            });
+        }
+
+        // 创建钢琴键盘
+        function createPiano(container, version) {
+            // 创建白键
+            whiteKeys.forEach((note, index) => {
+                const key = document.createElement('div');
+                key.className = 'key-white';
+                key.dataset.note = note;
+                key.dataset.version = version;
+                key.textContent = note;
+                key.style.left = `${index * 52}px`;
+                container.appendChild(key);
+
+                // 添加事件监听
+                key.addEventListener('mousedown', () => playSound(note, version));
+                key.addEventListener('mouseup', () => key.classList.remove('active'));
+                key.addEventListener('mouseleave', () => key.classList.remove('active'));
+            });
+
+            // 创建黑键
+            Object.entries(blackKeyPositions).forEach(([note, position]) => {
+                const key = document.createElement('div');
+                key.className = 'key-black';
+                key.dataset.note = note;
+                key.dataset.version = version;
+                key.textContent = note.replace('#', '♯');
+                key.style.left = `${position * 52 - 17}px`;
+                container.appendChild(key);
+
+                // 添加事件监听
+                key.addEventListener('mousedown', () => playSound(note, version));
+                key.addEventListener('mouseup', () => key.classList.remove('active'));
+                key.addEventListener('mouseleave', () => key.classList.remove('active'));
+            });
+
+            // 设置容器宽度
+            container.style.width = `${whiteKeys.length * 52}px`;
+        }
+
+        // 初始化音频上下文
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // 播放不同版本的声音
+        function playSound(note, version) {
+            initAudio();
+            const now = audioContext.currentTime;
+            const freq = noteFrequencies[note];
+            
+            if (!freq) return;
+
+            // 高亮按键
+            const keys = document.querySelectorAll(`[data-note="${note}"][data-version="${version}"]`);
+            keys.forEach(k => k.classList.add('active'));
+
+            // 根据版本设置不同的参数
+            let duration, attack, decay, sustain, reverbAmount;
+            
+            switch(version) {
+                case 'original':
+                    duration = 0.8;
+                    attack = 0.005;
+                    decay = 0.2;
+                    sustain = 0.25;
+                    reverbAmount = 0.2;
+                    break;
+                case 'improved':
+                    duration = 1.5;
+                    attack = 0.005;
+                    decay = 0.3;
+                    sustain = 0.3;
+                    reverbAmount = 0.35;
+                    break;
+                case 'latest':
+                    duration = 2.0;
+                    attack = 0.005;
+                    decay = 0.4;
+                    sustain = 0.35;
+                    reverbAmount = 0.4;
+                    break;
+            }
+
+            // 创建振荡器
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(freq, now);
+
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(freq * 2, now);
+
+            // 混响
+            const convolver = audioContext.createConvolver();
+            const impulse = createReverbImpulse(duration);
+            convolver.buffer = impulse;
+
+            // 滤波器
+            const masterFilter = audioContext.createBiquadFilter();
+            masterFilter.type = 'lowpass';
+            masterFilter.frequency.setValueAtTime(7000, now);
+
+            // 主音量
+            const masterGain = audioContext.createGain();
+            const reverbGain = audioContext.createGain();
+            reverbGain.gain.setValueAtTime(reverbAmount, now);
+
+            // 连接
+            osc1.connect(gain1);
+            gain1.connect(masterGain);
+            
+            osc2.connect(gain2);
+            gain2.connect(masterGain);
+            
+            masterGain.connect(masterFilter);
+            masterFilter.connect(audioContext.destination);
+            
+            masterGain.connect(convolver);
+            convolver.connect(reverbGain);
+            reverbGain.connect(masterFilter);
+
+            // 包络
+            gain1.gain.setValueAtTime(0, now);
+            gain1.gain.linearRampToValueAtTime(0.4, now + attack);
+            gain1.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+            gain2.gain.setValueAtTime(0, now);
+            gain2.gain.linearRampToValueAtTime(0.07, now + attack);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + duration * 0.7);
+
+            masterGain.gain.setValueAtTime(0, now);
+            masterGain.gain.linearRampToValueAtTime(0.45, now + attack);
+            masterGain.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+            masterGain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + duration);
+            osc2.stop(now + duration);
+
+            // 保存声音引用
+            const key = `${note}-${version}`;
+            activeSounds[key] = { osc1, osc2, gain1, gain2, masterGain };
+
+            // 延迟移除高亮
+            setTimeout(() => {
+                keys.forEach(k => k.classList.remove('active'));
+            }, duration * 1000);
+        }
+
+        // 创建混响脉冲响应
+        function createReverbImpulse(duration) {
+            const sampleRate = audioContext.sampleRate;
+            const length = sampleRate * duration;
+            const impulse = audioContext.createBuffer(1, length, sampleRate);
+            const impulseData = impulse.getChannelData(0);
+
+            for (let i = 0; i < length; i++) {
+                const t = i / sampleRate;
+                const envelope = Math.exp(-t / (duration * 0.3)) * (1 - t / duration);
+                impulseData[i] = (Math.random() * 2 - 1) * envelope * 0.3;
+            }
+
+            return impulse;
+        }
+
+        // 播放所有音符
+        function playVersion(version) {
+            const notes = [
+                'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'A#3', 'B3',
+                'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4',
+                'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5'
+            ];
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, version);
+                }, index * 150);
+            });
+        }
+
+        // 播放音阶
+        function playScale(version) {
+            const scale = ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
+            scale.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, version);
+                }, index * 200);
+            });
+        }
+
+        // 停止所有声音
+        function stopAll() {
+            Object.keys(activeSounds).forEach(key => {
+                const sound = activeSounds[key];
+                if (sound && sound.osc1) {
+                    try {
+                        sound.osc1.stop();
+                        sound.osc2.stop();
+                    } catch(e) {}
+                }
+            });
+            document.querySelectorAll('.key-white, .key-black').forEach(key => {
+                key.classList.remove('active');
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', initPianos);
+    </script>
+</body>
+</html>

@@ -357,9 +357,9 @@ class MelodyMemoryGame {
         const masterGain = this.audioContext.createGain();
         const masterFilter = this.audioContext.createBiquadFilter();
         masterFilter.type = 'lowpass';
-        masterFilter.frequency.setValueAtTime(7000, now);
+        masterFilter.frequency.setValueAtTime(5000, now); // 降低滤波频率，让声音更干净
 
-        // 创建延音踏板混响效果（更强的混响）
+        // 创建延音踏板混响效果（适度混响）
         const convolver = this.audioContext.createConvolver();
         const impulse = this.createReverbImpulse(true); // true = 延音踏板模式
         convolver.buffer = impulse;
@@ -375,33 +375,33 @@ class MelodyMemoryGame {
         masterGain.connect(masterFilter);
         masterFilter.connect(this.audioContext.destination);
         
-        // 延音踏板混响处理（增加混响量）
+        // 延音踏板混响处理（降低混响量，避免多音模糊）
         const reverbGain = this.audioContext.createGain();
-        reverbGain.gain.setValueAtTime(0.4, now); // 延音踏板混响量
+        reverbGain.gain.setValueAtTime(0.12, now); // 降低混响量
         masterGain.connect(convolver);
         convolver.connect(reverbGain);
         reverbGain.connect(masterFilter);
 
-        // 延音踏板效果包络：快速攻击，较长衰减，缓慢释放
+        // 延音踏板效果包络：快速攻击，适中衰减，清晰释放
         const attack = 0.005;     // 快速攻击
-        const decay = 0.4;        // 较长衰减
-        const sustain = 0.35;     // 较高持续音量
+        const decay = 0.35;       // 适中衰减
+        const sustain = 0.28;     // 适中持续音量
         const release = totalDuration - attack - decay;
 
         // 主振荡器包络（控制在安全音量范围）
         gain1.gain.setValueAtTime(0, now);
-        gain1.gain.linearRampToValueAtTime(0.6, now + attack);
+        gain1.gain.linearRampToValueAtTime(0.45, now + attack);
         gain1.gain.linearRampToValueAtTime(sustain, now + attack + decay);
         gain1.gain.exponentialRampToValueAtTime(0.01, now + totalDuration);
 
         // 第二振荡器包络（减少泛音量避免杂音）
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.08, now + attack);
+        gain2.gain.linearRampToValueAtTime(0.04, now + attack);
         gain2.gain.exponentialRampToValueAtTime(0.01, now + totalDuration * 0.5);
 
-        // 主音量控制（降低音量避免削波）
+        // 主音量控制（降低音量避免多音削波）
         masterGain.gain.setValueAtTime(0, now);
-        masterGain.gain.linearRampToValueAtTime(0.7, now + attack);
+        masterGain.gain.linearRampToValueAtTime(0.45, now + attack);
         masterGain.gain.linearRampToValueAtTime(sustain, now + attack + decay);
         masterGain.gain.exponentialRampToValueAtTime(0.01, now + totalDuration);
 

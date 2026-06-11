@@ -154,6 +154,9 @@ class MelodyMemoryGame {
 
         this.audioContext = null;
 
+        // 追踪当前按下的键，防止多键组合时重复触发
+        this.pressedKeys = new Set();
+
         this.init();
     }
 
@@ -581,6 +584,13 @@ class MelodyMemoryGame {
 
         if (keyMap[e.key]) {
             const note = keyMap[e.key];
+            
+            // 检查该键是否已经被按下（防止多键组合时重复触发）
+            if (this.pressedKeys.has(note)) return;
+            
+            // 记录该键已被按下
+            this.pressedKeys.add(note);
+            
             // 直接播放声音，不依赖DOM查询
             this.playSound(note, 600);
             
@@ -648,6 +658,10 @@ class MelodyMemoryGame {
 
         if (keyMap[e.key]) {
             const note = keyMap[e.key];
+            
+            // 从按下的键集合中移除
+            this.pressedKeys.delete(note);
+            
             const key = document.querySelector(`.piano-key[data-note="${note}"]`);
             if (key) {
                 this.releaseKey(key);

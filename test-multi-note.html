@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多音符同时播放测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .piano-keys {
+            display: flex;
+            gap: 5px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+
+        .key {
+            width: 60px;
+            height: 120px;
+            border-radius: 8px;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .key.white {
+            background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
+            color: #333;
+        }
+
+        .key.black {
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            color: white;
+            width: 45px;
+            height: 80px;
+            margin-left: -22px;
+            margin-right: -22px;
+            z-index: 2;
+        }
+
+        .key:active, .key.active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .key.white:active, .key.white.active {
+            background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+        }
+
+        .key.black:active, .key.black.active {
+            background: linear-gradient(180deg, #444 0%, #222 100%);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+
+        button.success {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: white;
+        }
+
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: left;
+            max-width: 400px;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 10px;
+            color: #4facfe;
+        }
+
+        .info-panel ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .info-panel li {
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎹 多音符同时播放测试</h1>
+        <p>测试同时按下多个琴键时的声音效果</p>
+
+        <div class="piano-keys">
+            <button class="key white" data-note="C4">C</button>
+            <button class="key black" data-note="C#4">C#</button>
+            <button class="key white" data-note="D4">D</button>
+            <button class="key black" data-note="D#4">D#</button>
+            <button class="key white" data-note="E4">E</button>
+            <button class="key white" data-note="F4">F</button>
+            <button class="key black" data-note="F#4">F#</button>
+            <button class="key white" data-note="G4">G</button>
+            <button class="key black" data-note="G#4">G#</button>
+            <button class="key white" data-note="A4">A</button>
+            <button class="key black" data-note="A#4">A#</button>
+            <button class="key white" data-note="B4">B</button>
+        </div>
+
+        <div class="controls">
+            <button class="primary" onclick="playChord(['C4', 'E4', 'G4'])">🎵 播放C大三和弦</button>
+            <button class="primary" onclick="playChord(['A4', 'C5', 'E5'])">🎵 播放A小三和弦</button>
+            <button class="success" onclick="playMelody(['C4', 'D4', 'E4', 'F4', 'G4'])">🎵 播放旋律</button>
+            <button class="danger" onclick="stopAllSounds()">⏹️ 停止所有声音</button>
+        </div>
+
+        <div class="info-panel">
+            <h3>测试说明</h3>
+            <ul>
+                <li>点击琴键或使用按钮测试多音符同时播放</li>
+                <li>观察是否有杂音或声音中断的情况</li>
+                <li>对比练习模式中的行为差异</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API 音频上下文
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 音符频率映射
+        const noteFrequencies = {
+            'C4': 261.63,
+            'C#4': 277.18,
+            'D4': 293.66,
+            'D#4': 311.13,
+            'E4': 329.63,
+            'F4': 349.23,
+            'F#4': 369.99,
+            'G4': 392.00,
+            'G#4': 415.30,
+            'A4': 440.00,
+            'A#4': 466.16,
+            'B4': 493.88,
+            'C5': 523.25,
+            'E5': 659.25
+        };
+
+        // 存储所有正在播放的音频源
+        const activeSources = [];
+
+        function playSound(note, duration = 500) {
+            if (!noteFrequencies[note]) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(noteFrequencies[note], audioContext.currentTime);
+
+            // 音量包络：淡入淡出
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.02);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + duration / 1000 - 0.1);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration / 1000);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+
+            // 保存引用以便停止
+            activeSources.push({ oscillator, gainNode });
+
+            // 播放结束后自动清理
+            setTimeout(() => {
+                const index = activeSources.findIndex(s => s.oscillator === oscillator);
+                if (index !== -1) {
+                    activeSources.splice(index, 1);
+                }
+            }, duration);
+        }
+
+        function playChord(notes) {
+            // 同时播放多个音符
+            notes.forEach(note => playSound(note, 1000));
+            
+            // 高亮显示按下的琴键
+            notes.forEach(note => {
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key) {
+                    key.classList.add('active');
+                    setTimeout(() => key.classList.remove('active'), 1000);
+                }
+            });
+        }
+
+        function playMelody(notes) {
+            // 按顺序播放音符
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    playSound(note, 400);
+                    const key = document.querySelector(`[data-note="${note}"]`);
+                    if (key) {
+                        key.classList.add('active');
+                        setTimeout(() => key.classList.remove('active'), 400);
+                    }
+                }, index * 300);
+            });
+        }
+
+        function stopAllSounds() {
+            activeSources.forEach(source => {
+                try {
+                    source.gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    source.oscillator.stop();
+                } catch (e) {
+                    console.log('Error stopping sound:', e);
+                }
+            });
+            activeSources.length = 0;
+        }
+
+        // 绑定琴键点击事件
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('mousedown', () => {
+                const note = key.dataset.note;
+                playSound(note, 500);
+                key.classList.add('active');
+            });
+            
+            key.addEventListener('mouseup', () => {
+                key.classList.remove('active');
+            });
+            
+            key.addEventListener('mouseleave', () => {
+                key.classList.remove('active');
+            });
+        });
+
+        // 键盘支持
+        const keyMap = {
+            'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+            'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+            'u': 'A#4', 'j': 'B4'
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (keyMap[e.key] && !e.repeat) {
+                const note = keyMap[e.key];
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key && !key.classList.contains('active')) {
+                    playSound(note, 500);
+                    key.classList.add('active');
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (keyMap[e.key]) {
+                const key = document.querySelector(`[data-note="${keyMap[e.key]}"]`);
+                if (key) {
+                    key.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

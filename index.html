@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐记忆挑战</title>
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+    <div class="game-container">
+        <div class="sidebar-left">
+            <div class="panel">
+                <h3>🎵 键盘提示</h3>
+                <div class="keyboard-hint">
+                    <p><span>高音区：</span><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd><kbd>I</kbd></p>
+                    <p><span>中音区：</span><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd></p>
+                    <p><span>低音区：</span><kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd><kbd>B</kbd><kbd>N</kbd><kbd>M</kbd></p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>📚 练习曲目</h3>
+                <select id="lesson-select">
+                    <option value="">选择曲目</option>
+                    <option value="twinkle">小星星</option>
+                    <option value="happybirthday">生日快乐</option>
+                    <option value="ode">欢乐颂</option>
+                    <option value="scale">音阶练习</option>
+
+                </select>
+                <button class="btn btn-primary btn-small" id="load-lesson-btn">加载曲目</button>
+                <div id="lesson-info"></div>
+            </div>
+
+            <div class="panel">
+                <h3>🎮 游戏说明</h3>
+                <ul class="game-instructions">
+                    <li>🎵 选择演奏模式开始游戏</li>
+                    <li>👂 仔细聆听旋律</li>
+                    <li>🎹 按顺序点击琴键</li>
+                    <li>⭐ 正确演奏获得分数</li>
+                </ul>
+            </div>
+
+            <div class="panel">
+                <h3>🏆 分数排行榜</h3>
+                <div id="leaderboard-list"><p class="empty">暂无记录，快来挑战吧！</p></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <header>
+                <div class="user-section">
+                    <div id="user-info" class="hidden">
+                        <span class="avatar">👤</span>
+                        <span class="username"></span>
+                        <button id="logout-btn" class="btn btn-xs btn-danger">退出</button>
+                    </div>
+                    <div id="login-form">
+                        <input type="text" id="login-username" placeholder="用户名" maxlength="20">
+                        <input type="password" id="login-password" placeholder="密码" maxlength="20">
+                        <button id="login-btn" class="btn btn-sm btn-primary">登录</button>
+                        <button id="register-btn" class="btn btn-sm">注册</button>
+                    </div>
+                    <div id="data-transfer" style="margin-top: 10px;">
+                        <button id="export-data-btn" class="btn btn-xs btn-secondary">导出数据</button>
+                        <button id="import-data-btn" class="btn btn-xs btn-secondary">导入数据</button>
+                    </div>
+                </div>
+                <h1>🎹 音乐记忆挑战</h1>
+                <p class="subtitle">记住旋律顺序，像演奏一样点击琴键！</p>
+            </header>
+
+            <div class="mode-selector">
+                <button class="mode-btn active" id="play-mode-btn">🎮 记忆挑战</button>
+                <button class="mode-btn" id="listen-mode-btn">🎵 纯听模式</button>
+                <button class="mode-btn" id="edit-mode-btn">✏️ 编辑关卡</button>
+                <button class="mode-btn" id="lesson-mode-btn">📚 练习模式</button>
+                <button class="mode-btn" id="advanced-mode-btn">🎹 高级编辑</button>
+            </div>
+
+            <div class="game-info">
+                <div class="score-panel">
+                    <span class="label">关卡</span>
+                    <span class="value level">1</span>
+                </div>
+                <div class="score-panel">
+                    <span class="label">得分</span>
+                    <span class="value score">0</span>
+                </div>
+                <div class="score-panel">
+                    <span class="label">最高分</span>
+                    <span class="value high-score">0</span>
+                </div>
+            </div>
+
+            <div class="timeline-editor">
+                <h3>🎬 时间轴编辑器</h3>
+                <div class="timeline-controls">
+                    <button class="btn btn-sm btn-primary" id="save-level-btn">💾 保存</button>
+                    <button class="btn btn-sm" id="timeline-record">🔴 录制</button>
+                    <button class="btn btn-sm" id="timeline-play">▶️ 播放</button>
+                    <button class="btn btn-sm" id="timeline-stop">⏹️ 停止</button>
+                    <div class="note-value-selector">
+                        <span class="label">时值:</span>
+                        <button class="btn btn-xs active" id="note-quarter">♩ 四分</button>
+                        <button class="btn btn-xs" id="note-eighth">♪ 八分</button>
+                        <button class="btn btn-xs" id="note-sixteenth">♬ 十六分</button>
+                    </div>
+                    <button class="btn btn-sm" id="timeline-add">➕ 添加节点</button>
+                    <button class="btn btn-sm" id="timeline-delete">🗑️ 删除节点</button>
+                    <button class="btn btn-sm" id="clear-btn">🗑️ 清空</button>
+                    <button class="btn btn-sm" id="random-btn">🎲 随机</button>
+                    <span id="timeline-time">0:00.000</span>
+                </div>
+                <div class="timeline-grid" id="timeline-grid">
+                    <div class="timeline-nodes" id="timeline-nodes">
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-levels-panel">
+                <div class="custom-levels-header">
+                    <h3>📋 自定义关卡</h3>
+                    <button class="btn btn-sm btn-primary" id="new-level-btn">➕ 新建关卡</button>
+                </div>
+                <div id="custom-levels"><p class="empty">暂无关卡，点击新建开始创作！</p></div>
+            </div>
+
+            <div class="piano-container">
+                <div class="octave-label high">🎵 高音区（升7）</div>
+                <div class="piano-board">
+                    <div class="piano-row">
+                        <div class="piano-key" data-note="C5">Q</div>
+                        <div class="piano-key" data-note="D5">W</div>
+                        <div class="piano-key" data-note="E5">E</div>
+                        <div class="piano-key" data-note="F5">R</div>
+                        <div class="piano-key" data-note="G5">T</div>
+                        <div class="piano-key" data-note="A5">Y</div>
+                        <div class="piano-key" data-note="B5">U</div>
+                    </div>
+                    <div class="piano-row">
+                        <div class="piano-key" data-note="C4">A</div>
+                        <div class="piano-key" data-note="D4">S</div>
+                        <div class="piano-key" data-note="E4">D</div>
+                        <div class="piano-key" data-note="F4">F</div>
+                        <div class="piano-key" data-note="G4">G</div>
+                        <div class="piano-key" data-note="A4">H</div>
+                        <div class="piano-key" data-note="B4">J</div>
+                    </div>
+                    <div class="piano-row">
+                        <div class="piano-key" data-note="C3">Z</div>
+                        <div class="piano-key" data-note="D3">X</div>
+                        <div class="piano-key" data-note="E3">C</div>
+                        <div class="piano-key" data-note="F3">V</div>
+                        <div class="piano-key" data-note="G3">B</div>
+                        <div class="piano-key" data-note="A3">N</div>
+                        <div class="piano-key" data-note="B3">M</div>
+                    </div>
+                </div>
+                <div class="octave-label low">🎵 低音区</div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn btn-primary" id="start-btn">开始游戏</button>
+                <button class="btn btn-secondary" id="reset-btn">重置</button>
+            </div>
+
+            <div class="game-status" id="status">选择模式，开始演奏！</div>
+        </div>
+
+        <div id="player-name-modal" class="modal">
+            <div class="modal-content">
+                <h3>🎉 演奏成功！</h3>
+                <p>得分：<span id="final-score"></span></p>
+                <p>关卡：<span id="final-level"></span></p>
+                <input type="text" id="player-name-input" placeholder="输入名字" maxlength="10">
+                <div class="modal-buttons">
+                    <button id="save-score-btn" class="btn btn-primary">保存</button>
+                    <button id="close-modal-btn" class="btn btn-secondary">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js?v=2"></script>
+</body>
+</html>

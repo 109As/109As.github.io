@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习模式测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #4facfe;
+        }
+
+        .status {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 16px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .progress-item {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .progress-item.active {
+            background: #4facfe;
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.7);
+        }
+
+        .progress-item.completed {
+            background: #00ff88;
+        }
+
+        .piano-keys {
+            display: flex;
+            gap: 5px;
+            margin: 30px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .key {
+            width: 60px;
+            height: 120px;
+            border-radius: 8px;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .key.white {
+            background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
+            color: #333;
+        }
+
+        .key.black {
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            color: white;
+            width: 45px;
+            height: 80px;
+            margin-left: -22px;
+            margin-right: -22px;
+            z-index: 2;
+        }
+
+        .key.hint {
+            animation: hint-pulse 1s infinite;
+        }
+
+        .key.hint.white {
+            background: linear-gradient(180deg, #a8e6cf 0%, #88d8b0 100%);
+        }
+
+        .key.hint.black {
+            background: linear-gradient(180deg, #00ff88 0%, #00cc6a 100%);
+        }
+
+        .key:active, .key.active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .key.white:active, .key.white.active {
+            background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+        }
+
+        .key.black:active, .key.black.active {
+            background: linear-gradient(180deg, #444 0%, #222 100%);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+
+        @keyframes hint-pulse {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(0, 255, 136, 0.8);
+            }
+        }
+
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 10px;
+            color: #4facfe;
+        }
+
+        .info-panel ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .info-panel li {
+            margin-bottom: 5px;
+            color: #ccc;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎹 练习模式测试</h1>
+        
+        <div class="status" id="status">点击「开始练习」开始测试</div>
+        
+        <div class="progress" id="progress"></div>
+
+        <div class="piano-keys" id="piano-keys">
+            <button class="key white" data-note="C4">C</button>
+            <button class="key black" data-note="C#4">C#</button>
+            <button class="key white" data-note="D4">D</button>
+            <button class="key black" data-note="D#4">D#</button>
+            <button class="key white" data-note="E4">E</button>
+            <button class="key white" data-note="F4">F</button>
+            <button class="key black" data-note="F#4">F#</button>
+            <button class="key white" data-note="G4">G</button>
+            <button class="key black" data-note="G#4">G#</button>
+            <button class="key white" data-note="A4">A</button>
+            <button class="key black" data-note="A#4">A#</button>
+            <button class="key white" data-note="B4">B</button>
+        </div>
+
+        <div class="controls">
+            <button class="primary" onclick="startLesson()">▶️ 开始练习</button>
+            <button class="danger" onclick="resetLesson()">🔄 重置练习</button>
+        </div>
+
+        <div class="info-panel">
+            <h3>练习规则</h3>
+            <ul>
+                <li>高亮显示的琴键是当前需要按下的</li>
+                <li>可以同时按下多个键（和弦）</li>
+                <li>按下所有高亮的键后自动进入下一个节点</li>
+                <li>按错键没有反应，不会影响进度</li>
+                <li>完成所有节点后显示"练习完成"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API 音频上下文
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 音符频率映射
+        const noteFrequencies = {
+            'C4': 261.63,
+            'C#4': 277.18,
+            'D4': 293.66,
+            'D#4': 311.13,
+            'E4': 329.63,
+            'F4': 349.23,
+            'F#4': 369.99,
+            'G4': 392.00,
+            'G#4': 415.30,
+            'A4': 440.00,
+            'A#4': 466.16,
+            'B4': 493.88
+        };
+
+        // 练习数据（模拟时间轴节点）
+        const lessonData = [
+            { notes: ['C4'] },           // 节点1：单音
+            { notes: ['C4', 'E4', 'G4'] }, // 节点2：C大三和弦
+            { notes: ['D4', 'F4', 'A4'] }, // 节点3：D小三和弦
+            { notes: ['E4'] },           // 节点4：单音
+            { notes: ['G4', 'B4'] },     // 节点5：双音
+            { notes: ['C4'] }            // 节点6：单音
+        ];
+
+        let currentNodeIndex = 0;
+        let pressedNotes = new Set();
+        let isPlaying = false;
+        const pressedKeys = {}; // 防止长按重复触发
+
+        function playSound(note, duration = 300) {
+            if (!noteFrequencies[note]) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // 使用三角波，更接近钢琴音色
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(noteFrequencies[note], audioContext.currentTime);
+
+            // 钢琴音色的音量包络：快速攻击，快速衰减，短持续时间
+            const now = audioContext.currentTime;
+            const attack = 0.01;    // 快速攻击
+            const decay = 0.1;      // 快速衰减
+            const sustain = 0.15;    // 低持续音量
+            const release = duration / 1000 - attack - decay;
+
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.4, now + attack);
+            gainNode.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration / 1000);
+
+            oscillator.start(now);
+            oscillator.stop(now + duration / 1000);
+        }
+
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            progress.innerHTML = '';
+            
+            for (let i = 0; i < lessonData.length; i++) {
+                const item = document.createElement('div');
+                item.className = 'progress-item';
+                
+                if (i < currentNodeIndex) {
+                    item.classList.add('completed');
+                } else if (i === currentNodeIndex) {
+                    item.classList.add('active');
+                }
+                
+                progress.appendChild(item);
+            }
+        }
+
+        function updateHints() {
+            // 清除所有提示
+            document.querySelectorAll('.key').forEach(key => {
+                key.classList.remove('hint');
+            });
+            
+            // 如果练习结束，不显示提示
+            if (currentNodeIndex >= lessonData.length) {
+                return;
+            }
+            
+            // 高亮当前节点需要按下的键
+            const currentNode = lessonData[currentNodeIndex];
+            currentNode.notes.forEach(note => {
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key) {
+                    key.classList.add('hint');
+                }
+            });
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('status');
+            
+            if (!isPlaying) {
+                status.textContent = '点击「开始练习」开始测试';
+                return;
+            }
+            
+            if (currentNodeIndex >= lessonData.length) {
+                status.textContent = '🎉 练习完成！点击「重置练习」重新开始';
+                return;
+            }
+            
+            const currentNode = lessonData[currentNodeIndex];
+            const noteNames = currentNode.notes.join(', ');
+            const pressedCount = pressedNotes.size;
+            const totalCount = currentNode.notes.length;
+            
+            if (pressedCount === 0) {
+                status.textContent = `📚 第 ${currentNodeIndex + 1}/${lessonData.length} 节点 - 需要按下: ${noteNames}`;
+            } else {
+                status.textContent = `📚 第 ${currentNodeIndex + 1}/${lessonData.length} 节点 - 已按 ${pressedCount}/${totalCount}`;
+            }
+        }
+
+        function checkNodeComplete() {
+            if (currentNodeIndex >= lessonData.length) {
+                return;
+            }
+            
+            const currentNode = lessonData[currentNodeIndex];
+            const allPressed = currentNode.notes.every(note => pressedNotes.has(note));
+            
+            if (allPressed) {
+                // 进入下一个节点
+                currentNodeIndex++;
+                pressedNotes = new Set();
+                
+                updateProgress();
+                updateHints();
+                updateStatus();
+                
+                // 检查是否完成所有节点
+                if (currentNodeIndex >= lessonData.length) {
+                    isPlaying = false;
+                }
+            }
+        }
+
+        function handleKeyPress(e) {
+            const key = e.target;
+            const note = key.dataset.note;
+            
+            if (!note || !isPlaying) return;
+            
+            // 防止长按重复触发
+            if (pressedKeys[note]) {
+                return;
+            }
+            pressedKeys[note] = true;
+            
+            const currentNode = lessonData[currentNodeIndex];
+            
+            // 只有按下正确的键才处理
+            if (currentNode && currentNode.notes.includes(note)) {
+                // 播放声音
+                playSound(note, 500);
+                
+                // 添加到已按集合
+                pressedNotes.add(note);
+                
+                // 更新状态
+                updateStatus();
+                
+                // 检查是否完成当前节点
+                checkNodeComplete();
+            }
+        }
+
+        function handleKeyRelease(e) {
+            const key = e.target;
+            const note = key.dataset.note;
+            
+            if (!note) return;
+            
+            // 重置按键状态
+            pressedKeys[note] = false;
+        }
+
+        function startLesson() {
+            currentNodeIndex = 0;
+            pressedNotes = new Set();
+            isPlaying = true;
+            
+            updateProgress();
+            updateHints();
+            updateStatus();
+        }
+
+        function resetLesson() {
+            currentNodeIndex = 0;
+            pressedNotes = new Set();
+            isPlaying = false;
+            pressedKeys = {};
+            
+            // 清除所有提示和状态
+            document.querySelectorAll('.key').forEach(key => {
+                key.classList.remove('hint', 'active');
+            });
+            
+            updateProgress();
+            updateHints();
+            updateStatus();
+        }
+
+        // 绑定事件
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('mousedown', handleKeyPress);
+            key.addEventListener('mouseup', handleKeyRelease);
+            key.addEventListener('mouseleave', handleKeyRelease);
+        });
+
+        // 键盘支持
+        const keyMap = {
+            'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+            'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+            'u': 'A#4', 'j': 'B4'
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (keyMap[e.key] && !e.repeat) {
+                const note = keyMap[e.key];
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key) {
+                    handleKeyPress({ target: key });
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (keyMap[e.key]) {
+                const note = keyMap[e.key];
+                const key = document.querySelector(`[data-note="${note}"]`);
+                if (key) {
+                    handleKeyRelease({ target: key });
+                }
+            }
+        });
+
+        // 初始化
+        updateProgress();
+        updateHints();
+        updateStatus();
+    </script>
+</body>
+</html>

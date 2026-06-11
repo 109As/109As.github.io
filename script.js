@@ -564,6 +564,9 @@ class MelodyMemoryGame {
     }
 
     handleKeyboard(e) {
+        // 防止持续按住时重复触发
+        if (e.repeat) return;
+        
         const keyMap = {
             // 高音区（升7）- Q W E R T Y U
             'q': 'C5', 'w': 'D5', 'e': 'E5', 'r': 'F5', 't': 'G5', 'y': 'A5', 'u': 'B5',
